@@ -96,11 +96,11 @@ class Augmentor():
         return adj_matrix.tocsr()
 
 
-class GHCF(nn.Module):
-    name = 'GHCF'
+class MBSSL(nn.Module):
+    name = 'MBSSL'
 
     def __init__(self, max_item_list, data_config, args):
-        super(GHCF, self).__init__()
+        super(MBSSL, self).__init__()
         # ********************** input data *********************** #
         self.max_item_list = max_item_list
         self.n_users = data_config['n_users']
@@ -1081,7 +1081,7 @@ if __name__ == '__main__':
 
     t0 = time()
 
-    model = GHCF(max_item_list, data_config=config, args=args).to(device)
+    model = MBSSL(max_item_list, data_config=config, args=args).to(device)
     augmentor = Augmentor(data_config=config, args=args)
     recloss = RecLoss(data_config=config, args=args).to(device)
     ssloss = SSLoss(data_config=config, args=args).to(device)
