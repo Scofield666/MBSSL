@@ -44,7 +44,7 @@ class DataHandler(object):
         elif self.dataset_name.find('IJCAI') != -1:
             behs = ['click', 'fav', 'cart', 'train']
 
-        self.predir = '../../../data/' + self.dataset_name
+        self.predir = '../dataset/' + self.dataset_name
         self.behs = behs
         self.beh_num = len(behs)
 
