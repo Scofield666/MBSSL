@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 # @Time : 2023/1/3 20:33
 # @Author : crisis
-# @FileName: MBSSL_unified.py
-# @Function：用来看和mbssl_unified在beibei上为什么无法复现结果
+# @FileName:
+# @Function：正式版本
 # @Usage:
-# CUDA_VISIBLE_DEVICES=0 python MBSSL_unified.py --dataset Taobao--wid [0.01,0.01,0.01] --coefficient [1.0/6,4.0/6,1.0/6] --decay 0.01 --ssl_temp 0.2 --ssl_reg_inter [0.5,0.5]
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -1060,28 +1059,11 @@ if __name__ == '__main__':
     n_behs = data_generator.beh_num
 
     """ 处理相似度 """
-    # MBSSL_unified
-    sim_weight = eval(args.sim_weights)
-    user_sim_mat, item_sim_mat = data_generator.get_similarity_score(beh_idx=0, sim_measure=args.sim_measure)
-    user_sim_mat_unified, item_sim_mat_unified = sim_weight[0] * user_sim_mat, sim_weight[0] * item_sim_mat
-    # del user_sim_mat, item_sim_mat
-    for beh in range(1, len(config['behs'])):
-        user_sim_mat, item_sim_mat = data_generator.get_similarity_score(beh_idx=beh, sim_measure=args.sim_measure)
-        user_sim_mat_unified += sim_weight[beh] * user_sim_mat
-        item_sim_mat_unified += sim_weight[beh] * item_sim_mat
-        # del user_sim_mat, item_sim_mat
+    # 直接加载
+    user_sim_mat_unified, item_sim_mat_unified = data_generator.get_unified_sim(args.sim_measure)
+
     config['user_sim'] = user_sim_mat_unified.todense()
     config['item_sim'] = item_sim_mat_unified.todense()
-
-    # MBSSL_unified 之前
-    # user_sim_mat_list, item_sim_mat_list = [], []
-    # for beh in range(len(config['behs'])):
-    #     user_sim_mat, item_sim_mat = data_generator.get_similarity_score_old(beh_idx=beh, sim_measure=args.sim_measure)
-    #     user_sim_mat_list.append(user_sim_mat)
-    #     item_sim_mat_list.append(item_sim_mat)
-    # user_sim, item_sim = unified_sim(user_sim_mat_list, item_sim_mat_list, args, config)
-    # config['user_sim'] = user_sim
-    # config['item_sim'] = item_sim
 
     """
     preprocess sim mat for v3
