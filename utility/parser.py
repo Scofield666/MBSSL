@@ -16,8 +16,8 @@ def parse_args():
     parser.add_argument('--lr_decay', action="store_true")  # default false --lr_decay
     parser.add_argument('--lr_decay_step', type=int, default=10)
     parser.add_argument('--lr_gamma', type=float, default=0.8)
-    parser.add_argument('--meta_r', type=float, default=0.7)  # metabalance relax factor
-    parser.add_argument('--meta_b', type=float, default=0.9)  # metabalance beta
+    parser.add_argument('--meta_r', type=float, default=0.7)
+    parser.add_argument('--meta_b', type=float, default=0.9)
 
     parser.add_argument('--test_epoch', type=int, default=5,
                         help='test epoch steps.')
@@ -44,7 +44,7 @@ def parse_args():
     parser.add_argument('--batch_size', type=int, default=256,
                         help='Batch size.')
     parser.add_argument('--nhead', type=int, default=1)
-    parser.add_argument('--regs', nargs='?', default='[1e-5,1e-5,1e-2]',   # not used in GHCF
+    parser.add_argument('--regs', nargs='?', default='[1e-5,1e-5,1e-2]',
                         help='Regularizations.')
 
     parser.add_argument('--adj_type', nargs='?', default='pre',
@@ -80,11 +80,11 @@ def parse_args():
     parser.add_argument('--ssl_mode', type=str, default='both_side')
 
     # ******************************   ssl inter loss  paras      ***************************** #
-    parser.add_argument('--ssl_reg_inter', nargs='?', default='[1,1]')  # ssl_inter_loss reg, default 全为1不做任何设置
-    parser.add_argument('--ssl_inter_mode', type=str, default='both_side')  # ssl_inter mode
+    parser.add_argument('--ssl_reg_inter', nargs='?', default='[1,1]')
+    parser.add_argument('--ssl_inter_mode', type=str, default='both_side')
 
     # ******************************  ssl2 similarity paras      ***************************** #
-    parser.add_argument('--sim_measure', type=str, default='swing')  # 相似度方法 pmi / swing
+    parser.add_argument('--sim_measure', type=str, default='swing')
     parser.add_argument('--topk1_user', type=int, default=10)  #
     parser.add_argument('--topk1_item', type=int, default=10)  #
 
@@ -103,8 +103,8 @@ def parse_args():
                         help='Regularization, [0.0/6, 5.0/6, 1.0/6] for beibei, [1.0/6, 4.0/6, 1.0/6] for taobao')
 
     parser.add_argument('--mess_dropout', nargs='?', default='[0.3]',
-                        help='Keep probability w.r.t. message dropout, 0.2 for beibei and taobao')
+                        help='Keep probability w.r.t. message dropout')
 
-    parser.add_argument('--dropout_ratio', type=float, default=0.5) # ehcf
+    parser.add_argument('--dropout_ratio', type=float, default=0.5)
 
     return parser.parse_args()
