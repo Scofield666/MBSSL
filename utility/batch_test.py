@@ -23,28 +23,21 @@ data_generator = DataHandler(dataset=args.dataset, batch_size=args.batch_size)
 # data_generator.LoadData()
 USR_NUM, ITEM_NUM = data_generator.n_users, data_generator.n_items
 N_TRAIN, N_TEST = data_generator.n_train, data_generator.n_test
-if args.dataset=='amazon-book':
-    BATCH_SIZE = args.batch_size//4
+if args.dataset == 'amazon-book':
+    BATCH_SIZE = args.batch_size // 4
 else:
-    BATCH_SIZE = args.batch_size//2
+    BATCH_SIZE = args.batch_size // 2
+
 
 def ranklist_by_heapq(user_pos_test, test_items, rating, Ks):
-    """
-
-    :param user_pos_test: 当前用户在test集上的正样本item，这里数据集是一个。
-    :param test_items: 当前用户的候选item，这里是所有item-训练集中当前用户交互过的
-    :param rating: [1, N] 当前用户对所有item的打分
-    :param Ks: topk list [10, 50, 100]
-    :return:
-    """
-    item_score = {}  # key:item value: rating
+    item_score = {}
     for i in test_items:
         item_score[i] = rating[i]
 
     K_max = max(Ks)
     K_max_item_score = heapq.nlargest(K_max, item_score, key=item_score.get)  # 取出候选item中排名前K的item id
 
-    r = []  # list[100]每个位置记录该用户的正样本item是否hit
+    r = []
     for i in K_max_item_score:
         if i in user_pos_test:
             r.append(1)
@@ -52,6 +45,7 @@ def ranklist_by_heapq(user_pos_test, test_items, rating, Ks):
             r.append(0)
     auc = 0.
     return r, auc
+
 
 def get_auc(item_score, user_pos_test):
     item_score = sorted(item_score.items(), key=lambda kv: kv[1])
@@ -67,6 +61,7 @@ def get_auc(item_score, user_pos_test):
             r.append(0)
     auc = metrics.auc(ground_truth=r, prediction=posterior)
     return auc
+
 
 def ranklist_by_sorted(user_pos_test, test_items, rating, Ks):
     item_score = {}
@@ -85,6 +80,7 @@ def ranklist_by_sorted(user_pos_test, test_items, rating, Ks):
     auc = get_auc(item_score, user_pos_test)
     return r, auc
 
+
 def get_performance(user_pos_test, r, auc, Ks):
     precision, recall, ndcg, hit_ratio = [], [], [], []
 
@@ -101,14 +97,14 @@ def get_performance(user_pos_test, r, auc, Ks):
 def test_one_user(x):
     # user u's ratings for user u
     rating = x[0]  # [1, N]
-    #uid
+    # uid
     u = x[1]  # [1, ]
-    #user u's items in the training set
+    # user u's items in the training set
     try:
         training_items = data_generator.train_items[u]
     except Exception:
         training_items = []
-    #user u's items in the test set
+    # user u's items in the test set
     user_pos_test = data_generator.test_set[u]
 
     all_items = set(range(ITEM_NUM))
@@ -121,6 +117,7 @@ def test_one_user(x):
         r, auc = ranklist_by_sorted(user_pos_test, test_items, rating, Ks)
 
     return get_performance(user_pos_test, r, auc, Ks)
+
 
 def test_one_user_train(x):
     # user u's ratings for user u
@@ -144,7 +141,8 @@ def test_one_user_train(x):
 
     return get_performance(user_pos_test, r, auc, Ks)
 
-def test(sess, model, users_to_test, drop_flag=False, batch_test_flag=False,train_set_flag=0):
+
+def test(sess, model, users_to_test, drop_flag=False, batch_test_flag=False, train_set_flag=0):
     result = {'precision': np.zeros(len(Ks)), 'recall': np.zeros(len(Ks)), 'ndcg': np.zeros(len(Ks)),
               'hit_ratio': np.zeros(len(Ks)), 'auc': 0.}
 
@@ -179,12 +177,13 @@ def test(sess, model, users_to_test, drop_flag=False, batch_test_flag=False,trai
 
                 if drop_flag == False:
                     i_rate_batch = sess.run(model.batch_ratings, {model.users: user_batch,
-                                                                model.pos_items: item_batch})
+                                                                  model.pos_items: item_batch})
                 else:
                     i_rate_batch = sess.run(model.batch_ratings, {model.users: user_batch,
-                                                                model.pos_items: item_batch,
-                                                                model.node_dropout: [0.]*len(eval(args.layer_size)),
-                                                                model.mess_dropout: [0.]*len(eval(args.layer_size))})
+                                                                  model.pos_items: item_batch,
+                                                                  model.node_dropout: [0.] * len(eval(args.layer_size)),
+                                                                  model.mess_dropout: [0.] * len(
+                                                                      eval(args.layer_size))})
                 rate_batch[:, i_start: i_end] = i_rate_batch
                 i_count += i_rate_batch.shape[1]
 
@@ -195,36 +194,27 @@ def test(sess, model, users_to_test, drop_flag=False, batch_test_flag=False,trai
 
             if drop_flag == False:
                 rate_batch = sess.run(model.batch_ratings, {model.users: user_batch,
-                                                              model.pos_items: item_batch})
+                                                            model.pos_items: item_batch})
             else:
                 rate_batch = sess.run(model.batch_ratings, {model.users: user_batch,
-                                                              model.pos_items: item_batch,
-                                                              model.node_dropout: [0.] * len(eval(args.layer_size)),
-                                                              model.mess_dropout: [0.] * len(eval(args.layer_size))})
+                                                            model.pos_items: item_batch,
+                                                            model.node_dropout: [0.] * len(eval(args.layer_size)),
+                                                            model.mess_dropout: [0.] * len(eval(args.layer_size))})
 
         user_batch_rating_uid = zip(rate_batch, user_batch)
-        if train_set_flag==0:
+        if train_set_flag == 0:
             batch_result = pool.map(test_one_user, user_batch_rating_uid)
         else:
             batch_result = pool.map(test_one_user_train, user_batch_rating_uid)
         count += len(batch_result)
 
         for re in batch_result:
-            result['precision'] += re['precision']/n_test_users
-            result['recall'] += re['recall']/n_test_users
-            result['ndcg'] += re['ndcg']/n_test_users
-            result['hit_ratio'] += re['hit_ratio']/n_test_users
-            result['auc'] += re['auc']/n_test_users
-
+            result['precision'] += re['precision'] / n_test_users
+            result['recall'] += re['recall'] / n_test_users
+            result['ndcg'] += re['ndcg'] / n_test_users
+            result['hit_ratio'] += re['hit_ratio'] / n_test_users
+            result['auc'] += re['auc'] / n_test_users
 
     assert count == n_test_users
     pool.close()
     return result
-
-
-
-
-
-
-
-
