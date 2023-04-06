@@ -8,7 +8,7 @@ Wang Xiang et al. Neural Graph Collaborative Filtering. In SIGIR 2019.
 import argparse
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Run GHCF.")
+    parser = argparse.ArgumentParser(description="Run MBSSL.")
 
     # ******************************   optimizer paras      ***************************** #
     parser.add_argument('--lr', type=float, default=0.001,   #common parameter
